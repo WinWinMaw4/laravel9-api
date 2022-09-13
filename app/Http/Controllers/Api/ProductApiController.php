@@ -80,9 +80,17 @@ class ProductApiController extends Controller
             return response()->json(['message'=>'product not found'],404);
         }
 
-        $product->name = $request->name;
-        $product->unitPrice = $request->unitPrice;
-        $product->stock = $request->stock;
+
+
+        if($request->has('name')){
+            $product->name = $request->name;
+        }
+        if($request->has('unitPrice')){
+            $product->unitPrice = $request->unitPrice;
+        }
+        if($request->has('stock')){
+            $product->stock = $request->stock;
+        }
 
         $product->update();
 
