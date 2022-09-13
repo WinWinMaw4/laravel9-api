@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Photo;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductApiController extends Controller
 {
@@ -34,15 +36,43 @@ class ProductApiController extends Controller
             'name'=>'required|unique:products|min:3|max:50',
             'unitPrice'=>'required|numeric',
             'stock'=>'required|numeric',
+            "photos"=>"required",
+            "photos.*"=>"file|mimes:jpeg,png|max:512",
         ]);
 
-        $product = Product::create([
-           'name'=>$request->name,
-            'unitPrice'=>$request->unitPrice,
-            'stock'=>$request->stock,
-        ]);
+        DB::beginTransaction();
+        try{
+                $product = Product::create([
+                    'name'=>$request->name,
+                    'unitPrice'=>$request->unitPrice,
+                    'stock'=>$request->stock,
+                ]);
+
+                $photos = [];
+                foreach ($request->file('photos') as $key=>$photo){
+                    $newName = $photo->store("public");
+    //            Photo::create([
+    //                "product_id"=>$request->product_id,
+    //                "name"=>$newName,
+    //            ]);
+                    $photos[$key] = new Photo(['name'=>$newName]);
+                }
+    //        https://laravel.com/docs/9.x/eloquent-relationships#inserting-and-updating-related-models
+                $product->Photos()->saveMany($photos);
+
+
+            DB::commit();
+        }
+        catch(\exception $e){
+
+            DB::rollBack();
+            throw $e;
+        }
 
         return response()->json(['product'=>$product],200);
+
+
+
     }
 
     /**
@@ -75,6 +105,8 @@ class ProductApiController extends Controller
             'name'=>'nullable|unique:products,name,'.$id.'|min:3|max:50',
             'unitPrice'=>'nullable|numeric',
             'stock'=>'nullable|numeric',
+            "photos"=>"required",
+            "photos.*"=>"file|mimes:jpeg,png|max:512",
         ]);
 
         $product = Product::find($id);
