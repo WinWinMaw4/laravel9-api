@@ -16,6 +16,9 @@ class ProductApiController extends Controller
     public function index()
     {
         $products = Product::latest('id')->paginate(10);
+        if(count($products) <= 0){
+            return response()->json(['message'=>'products not have']);
+        }
         return response()->json($products);
     }
 
