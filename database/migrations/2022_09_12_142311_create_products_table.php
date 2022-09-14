@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->double('unitPrice');
             $table->double('stock');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

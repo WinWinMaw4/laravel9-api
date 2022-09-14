@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Photo;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ProductApiController extends Controller
@@ -15,6 +16,8 @@ class ProductApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+
     public function index()
     {
         $products = Product::latest('id')->paginate(10);
@@ -46,6 +49,7 @@ class ProductApiController extends Controller
                     'name'=>$request->name,
                     'unitPrice'=>$request->unitPrice,
                     'stock'=>$request->stock,
+                    'user_id'=>Auth::id(),
                 ]);
 
                 $photos = [];
@@ -126,6 +130,8 @@ class ProductApiController extends Controller
         if($request->has('stock')){
             $product->stock = $request->stock;
         }
+
+
 
         $product->update();
 
